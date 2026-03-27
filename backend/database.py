@@ -15,7 +15,7 @@ db_instance = Database()
 
 async def connect_db():
     client = AsyncIOMotorClient(MONGODB_URI)
-    db_instance.client = clientP
+    db_instance.client = client
     db_instance.db = client.get_default_database()
     print("Connected to MongoDB")
 

@@ -3,11 +3,15 @@
 import { useState } from "react"
 import { TriageForm } from "@/components/triage-form"
 import { DoctorDashboard } from "@/components/doctor-dashboard"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
 export default function Home() {
     const [view, setView] = useState<"patient" | "doctor">("patient")
+    const router = useRouter()
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black font-sans selection:bg-emerald-100 selection:text-emerald-900 overflow-x-hidden">
@@ -24,23 +28,25 @@ export default function Home() {
                         <p className="text-[10px] text-zinc-500 font-medium tracking-[0.2em] uppercase">Healthcare Accelerated</p>
                     </div>
                 </div>
-                <div className="flex bg-zinc-100/50 p-1 rounded-full border border-zinc-200/50">
-                    <Button 
-                        size="sm" 
-                        variant={view === "patient" ? "default" : "ghost"}
-                        onClick={() => setView("patient")}
-                        className={`rounded-full px-6 transition-all duration-300 ${view === 'patient' ? 'bg-zinc-900 text-white shadow-md' : 'text-zinc-500'}`}
+                <div className="flex bg-zinc-100/50 p-1 rounded-full border border-zinc-200/50 gap-2">
+                    <Link 
+                        href="/login"
+                        className={cn(
+                            buttonVariants({ variant: "ghost", size: "sm" }),
+                            "rounded-full px-6 transition-all duration-300 text-zinc-500 hover:text-zinc-900"
+                        )}
                     >
-                        Patient Form
-                    </Button>
-                    <Button 
-                        size="sm" 
-                        variant={view === "doctor" ? "default" : "ghost"}
-                        onClick={() => setView("doctor")}
-                        className={`rounded-full px-6 transition-all duration-300 ${view === 'doctor' ? 'bg-zinc-900 text-white shadow-md' : 'text-zinc-500'}`}
+                        Sign In
+                    </Link>
+                    <Link 
+                        href="/register"
+                        className={cn(
+                            buttonVariants({ size: "sm" }),
+                            "rounded-full px-6 transition-all duration-300 bg-zinc-900 text-white shadow-md hover:bg-zinc-800"
+                        )}
                     >
-                        Doctor Portal
-                    </Button>
+                        Get Started
+                    </Link>
                 </div>
             </header>
 
@@ -56,6 +62,25 @@ export default function Home() {
                         <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-xl leading-relaxed">
                             Connecting patients with AI-powered triage analysis and live medical experts in under 60 seconds. Secure, HIPAA-compliant, and lightning fast.
                         </p>
+                        
+                        <div className="flex gap-4 pt-4">
+                            <Link 
+                                href="/register"
+                                className={cn(
+                                    buttonVariants({ size: "lg" }),
+                                    "bg-emerald-600 hover:bg-emerald-500 text-white rounded-full px-10 h-14 text-lg font-semibold transition-all transform hover:scale-105 shadow-xl shadow-emerald-500/20"
+                                )}
+                            >
+                                Start Free Triage
+                            </Link>
+                            <Button 
+                                size="lg" 
+                                variant="outline"
+                                className="rounded-full px-10 h-14 text-lg font-semibold border-zinc-200 hover:bg-zinc-50 transition-all"
+                            >
+                                View Demo
+                            </Button>
+                        </div>
                         
                         <div className="flex flex-wrap gap-12 pt-8">
                             <div>
@@ -74,7 +99,20 @@ export default function Home() {
                     </div>
 
                     <div className="flex-1 w-full flex justify-center lg:justify-end">
-                        {view === "patient" ? <TriageForm /> : <DoctorDashboard />}
+                        <div className="relative w-full max-w-lg aspect-square">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-teal-500/10 rounded-[40px] blur-3xl animate-pulse" />
+                            <div className="relative bg-white/40 backdrop-blur-xl border border-white/20 rounded-[40px] p-10 h-full shadow-2xl flex flex-col justify-center gap-6">
+                                <div className="space-y-2">
+                                    <div className="h-4 w-32 bg-emerald-100 rounded-full animate-pulse" />
+                                    <div className="h-8 w-64 bg-zinc-900/10 rounded-full animate-pulse" />
+                                </div>
+                                <div className="space-y-4">
+                                    <div className="h-24 w-full bg-white/60 rounded-2xl border border-zinc-100" />
+                                    <div className="h-24 w-full bg-white/60 rounded-2xl border border-zinc-100" />
+                                </div>
+                                <div className="h-12 w-full bg-emerald-600/20 rounded-xl" />
+                            </div>
+                        </div>
                     </div>
                 </section>
 

@@ -12,22 +12,15 @@ Welcome to the Telemedicine Triage project. This application is built with a mod
 ### Prerequisites
 - Node.js 18+
 - Python 3.11+
+- Git
 
-### Backend Setup
-1. Navigate to the `backend` directory:
+### Initial Setup
+1. Clone the repository:
    ```bash
-   cd backend
+   git clone https://github.com/dcodingdev/telemedicine-triage.git
+   cd telemedicine-triage
    ```
-2. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-3. Run the development server:
-   ```bash
-   uvicorn main:app --reload
-   ```
+2. The project structure is already configured with a `.gitignore` to exclude large folders like `node_modules` and `venv`.
 
 ### Frontend Setup
 1. Navigate to the `frontend` directory:

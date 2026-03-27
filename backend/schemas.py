@@ -98,3 +98,42 @@ class TriageResult(BaseModel):
 
     class Config:
         from_attributes = True
+
+# --- Voice Session Schemas ---
+
+class VoiceTokenRequest(BaseModel):
+    patient_id: str
+    survey_id: Optional[str] = None
+
+class VoiceTokenResponse(BaseModel):
+    token: str
+    room_name: str
+    livekit_url: str
+
+class VoiceSessionComplete(BaseModel):
+    room_name: str
+    transcript: str
+    patient_id: str
+
+class RAGSnippet(BaseModel):
+    text: str
+    source: str = "medical_reference"
+    relevance_score: float = 0.0
+
+class RAGResult(BaseModel):
+    context_snippets: List[RAGSnippet] = []
+    enriched_summary: str = ""
+    medical_references: List[str] = []
+
+class EnrichedTriageResult(BaseModel):
+    id: str
+    patient_id: str
+    emergency_level: EmergencyLevel
+    suggested_action: str
+    summary: str
+    transcript: str = ""
+    rag_context: Optional[RAGResult] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

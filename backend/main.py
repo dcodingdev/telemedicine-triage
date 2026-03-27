@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api import router as api_router
+from voice import router as voice_router
 from database import connect_db, close_db
 
 app = FastAPI(title="Telemedicine Triage")
@@ -22,8 +23,10 @@ async def startup_db_client():
 async def shutdown_db_client():
     await close_db()
 
-# Include the API router
+# Include routers
 app.include_router(api_router, prefix="/api", tags=["triage"])
+app.include_router(voice_router, prefix="/api", tags=["voice"])
+
 
 @app.get("/")
 def read_root():
