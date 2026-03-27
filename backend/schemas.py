@@ -1,7 +1,41 @@
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from enum import Enum
-from datetime import date
+from datetime import date, datetime
+
+# --- Auth Schemas ---
+
+class UserRole(str, Enum):
+    USER = "user"
+    PATIENT = "patient"
+    ADMIN = "admin"
+
+class UserRegister(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+    first_name: str
+    last_name: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    email: EmailStr
+    first_name: str
+    last_name: str
+    role: UserRole
+
+    class Config:
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+# --- Medical Intake Schemas ---
 
 class Gender(str, Enum):
     MALE = "male"
@@ -14,31 +48,53 @@ class EmergencyLevel(str, Enum):
     HIGH = "high"
     CRITICAL = "critical"
 
-class PatientBase(BaseModel):
-    first_name: str = Field(..., min_length=1)
-    last_name: str = Field(..., min_length=1)
-    email: EmailStr
+class MedicalHistory(BaseModel):
+    chronic_conditions: List[str] = []
+    allergies: List[str] = []
+    current_medications: List[str] = []
+
+class Demographics(BaseModel):
+    age: int = Field(..., ge=0, le=120)
+    sex_at_birth: Gender
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+
+class RiskProfile(BaseModel):
+    smoker: bool = False
+    alcohol_use: str = "none" # none, occasional, frequent
+    pregnancy_status: bool = False
+
+class PatientCreate(BaseModel):
+    first_name: str
+    last_name: str
     date_of_birth: date
-    gender: Gender
+    is_proxy: bool = False
+    relation: str = "self" # self, child, parent, other
+    history: MedicalHistory
+
+class PatientResponse(PatientCreate):
+    id: str
+    user_id: str
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
 
 class TriageRequest(BaseModel):
-    symptoms: List[str] = Field(..., min_items=1)
-    description: str = Field(..., max_length=1000)
-    history: Optional[str] = None
-    level_of_pain: int = Field(0, ge=0, le=10)
+    patient_id: str
+    demographics: Demographics
+    medical_baseline: MedicalHistory
+    risk_profile: RiskProfile
+    chief_complaint: str = Field(..., max_length=2000)
+    symptom_onset: Optional[date] = None
 
 class TriageResult(BaseModel):
-    request_id: str
+    id: str
+    patient_id: str
     emergency_level: EmergencyLevel
     suggested_action: str
     summary: str
-
-class PatientCreate(PatientBase):
-    pass
-
-class Patient(PatientBase):
-    id: str
-    triage_history: List[TriageResult] = []
+    created_at: datetime
 
     class Config:
         from_attributes = True

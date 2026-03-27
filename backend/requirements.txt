@@ -2,3 +2,8 @@ fastapi
 uvicorn
 pydantic[email]
 python-multipart
+motor
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+httpx
