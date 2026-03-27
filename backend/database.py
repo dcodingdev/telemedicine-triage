@@ -5,7 +5,7 @@ from typing import Optional
 
 load_dotenv()
 
-MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/teletriage")
+MONGODB_URI = os.getenv("MONGODB_URI", "mongodb+srv://Dev:dkadmin@cluster0.e1ruc.mongodb.net/telemedicine_triage_db?appName=Cluster0")
 
 class Database:
     client: Optional[AsyncIOMotorClient] = None

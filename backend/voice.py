@@ -103,7 +103,7 @@ async def voice_session_complete(
 ):
     """
     Called when the voice session ends. Receives the final transcript
-    and triggers RAG enrichment.
+    and triggers RAG enrichment + agentic triage.
     """
     # Update session status
     await db["voice_sessions"].update_one(
@@ -118,12 +118,9 @@ async def voice_session_complete(
     )
 
     # Run RAG enrichment
+    enriched = None
     try:
         enriched = await enrich_triage(db, req.transcript, req.patient_id)
-        return {
-            "status": "enriched",
-            "triage_result": enriched,
-        }
     except Exception as e:
         logger.error(f"Enrichment failed: {e}")
         return {
@@ -131,6 +128,42 @@ async def voice_session_complete(
             "transcript": req.transcript,
             "error": str(e),
         }
+
+    # Trigger agentic triage (Phase 3) in background
+    triage_object = None
+    try:
+        from crew_triage import run_triage_crew_async
+
+        # Build the triage request from the enriched data
+        rag_context_text = ""
+        if enriched and enriched.get("rag_context"):
+            snippets = enriched["rag_context"].get("context_snippets", [])
+            rag_context_text = "\n".join([s.get("text", "") for s in snippets])
+
+        triage_request = schemas.TriageRunRequest(
+            patient_id=req.patient_id,
+            chief_complaint=enriched.get("summary", req.transcript[:500]),
+            transcript=req.transcript,
+            rag_context=rag_context_text or None,
+        )
+
+        triage_object = await run_triage_crew_async(triage_request)
+
+        # Persist the agentic triage result
+        await db["agentic_triage_results"].insert_one({
+            "patient_id": req.patient_id,
+            "triage_object": triage_object.model_dump(),
+            "created_at": datetime.utcnow(),
+        })
+        logger.info(f"Agentic triage completed: level={triage_object.level}")
+    except Exception as e:
+        logger.warning(f"Agentic triage failed (non-fatal): {e}")
+
+    return {
+        "status": "enriched",
+        "triage_result": enriched,
+        "triage_object": triage_object.model_dump() if triage_object else None,
+    }
 
 
 @router.get("/voice/results/{patient_id}")
